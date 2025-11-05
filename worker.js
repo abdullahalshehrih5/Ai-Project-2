@@ -103,10 +103,31 @@ export default {
       }
     }
 
+    // ✅ نقطة الدردشة (chat)
+    if (url.pathname === "/chat" && request.method === "POST") {
+      try {
+        const body = await request.json();
+        const userMessage = body.message || "";
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            reply: `📩 تم استقبال رسالتك: "${userMessage}" (الذكاء الاصطناعي غير مفعل حالياً)`
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ success: false, error: "فشل تحليل بيانات الرسالة" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     // ✅ رد افتراضي لأي مسار آخر
     return new Response(
-      JSON.stringify({ message: "🚀 السيرفر جاهز لكنه لم يتعرف على هذا المسار" }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: "❌ المسار غير معروف", path: url.pathname }),
+      { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   },
 };
