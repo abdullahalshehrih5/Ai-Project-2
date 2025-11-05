@@ -1,65 +1,112 @@
 export default {
   async fetch(request, env) {
-    // إعداد CORS للسماح من أي دومين
-    const headers = {
+    const url = new URL(request.url);
+
+    // ✅ ترويسات CORS العامة
+    const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Content-Type": "application/json",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, X-Requested-With",
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Max-Age": "86400",
     };
 
-    // ✅ رد سريع لطلبات التحقق من CORS
+    // ✅ معالجة OPTIONS (مطلوبة لـ CORS)
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers });
+      return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    try {
-      // ✅ جلب كل البيانات من قاعدة D1
-      if (request.method === "GET") {
-        const { results } = await env.DB.prepare(
-          "SELECT * FROM terms ORDER BY created_at DESC;"
-        ).all();
-
-        // لو مافيه بيانات نرجع مصفوفة فاضية
-        return new Response(JSON.stringify(results || []), { headers });
-      }
-
-      // ✅ إضافة أو تحديث بيانات جديدة
-      if (request.method === "POST") {
-        const data = await request.json();
-        const { term, meaning, dialect, category, response, understanding } = data;
-
-        if (!term || !meaning) {
-          return new Response(JSON.stringify({ error: "❌ البيانات غير مكتملة" }), {
-            status: 400,
-            headers,
-          });
-        }
-
-        // إدخال في قاعدة D1
-        await env.DB.prepare(
-          `INSERT INTO terms (term, meaning, dialect, category, response, understanding, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, datetime('now'));`
-        )
-          .bind(term, meaning, dialect, category, response, understanding)
-          .run();
-
-        return new Response(JSON.stringify({ success: true }), { headers });
-      }
-
-      // ✅ اختبار جاهزية السيرفر
-      return new Response(JSON.stringify({ message: "⚙️ السيرفر يعمل بنجاح" }), {
-        headers,
-      });
-    } catch (err) {
-      // ✅ معالجة الأخطاء العامة
+    // ✅ نقطة اختبار
+    if (url.pathname === "/" && request.method === "GET") {
       return new Response(
-        JSON.stringify({
-          error: "حدث خطأ في المعالجة ⚠️",
-          details: err.message,
-        }),
-        { status: 500, headers }
+        JSON.stringify({ status: "✅ السيرفر جاهز للعمل" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // ✅ إضافة مصطلح جديد
+    if (url.pathname === "/add" && request.method === "POST") {
+      try {
+        const data = await request.json();
+        const { id, term, meaning, dialect, category, response, understanding, timestamp } = data;
+
+        if (!term || !meaning) {
+          return new Response(
+            JSON.stringify({ success: false, error: "الحقول term و meaning مطلوبة" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!env.DB) {
+          return new Response(
+            JSON.stringify({ success: false, error: "❌ لم يتم العثور على قاعدة بيانات D1" }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        await env.DB.prepare(
+          `INSERT INTO terms (id, term, meaning, dialect, category, response, understanding, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+          id || crypto.randomUUID(),
+          term,
+          meaning,
+          dialect || "",
+          category || "",
+          response || "",
+          understanding || "",
+          timestamp || new Date().toISOString()
+        ).run();
+
+        return new Response(
+          JSON.stringify({ success: true, message: "✅ تم حفظ المصطلح في قاعدة البيانات" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ success: false, error: err.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // ✅ حذف مصطلح من قاعدة D1
+    if (url.pathname === "/delete" && request.method === "DELETE") {
+      try {
+        const { id } = await request.json();
+
+        if (!id) {
+          return new Response(
+            JSON.stringify({ success: false, error: "المعرف مفقود" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const result = await env.DB.prepare("DELETE FROM terms WHERE id = ?")
+          .bind(id)
+          .run();
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            id,
+            message: "✅ تم حذف المصطلح بنجاح من قاعدة البيانات",
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ success: false, error: err.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // ✅ رد افتراضي لأي مسار آخر
+    return new Response(
+      JSON.stringify({ message: "🚀 السيرفر جاهز لكنه لم يتعرف على هذا المسار" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   },
 };
