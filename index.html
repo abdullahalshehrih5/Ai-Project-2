@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحليل فهم HUMAIN Chat للهجات السعودية</title>
+    <title>تحليل فهم الذكاء الاصطناعي للهجات السعودية</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -235,6 +235,30 @@
 
         .tab-content.active {
             display: block;
+        }
+
+        /* تنسيقات بادجات الذكاء الاصطناعي */
+        .ai-provider-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .ai-provider-badge.openai {
+            background: #10a37f;
+            color: white;
+        }
+
+        .ai-provider-badge.gemini {
+            background: #8e24aa;
+            color: white;
+        }
+
+        .ai-provider-badge.unknown {
+            background: #6c757d;
+            color: white;
         }
 
         /* Dashboard Styles - Hidden by default */
@@ -759,27 +783,6 @@
             border-color: #555;
         }
 
-        .chart-placeholder {
-            height: 250px;
-            background: var(--white);
-            border-radius: var(--border-radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            font-weight: 600;
-            margin-top: 15px;
-            border: 2px dashed #ddd;
-            text-align: center;
-            line-height: 1.6;
-        }
-
-        .dark-mode .chart-placeholder {
-            background: #2d2d2d;
-            color: #aaa;
-            border-color: #555;
-        }
-
         .progress-bar {
             width: 100%;
             height: 20px;
@@ -814,6 +817,67 @@
             color: #aaa;
         }
 
+        /* تنسيقات اختيار الذكاء الاصطناعي */
+        .ai-selector-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            padding: 0 20px;
+        }
+
+        .dark-mode .ai-selector-tabs {
+            background: #3a3a3a;
+            border-bottom-color: #555;
+        }
+
+        .ai-selector-tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ai-selector-tab.active {
+            border-bottom: 3px solid var(--secondary-color);
+            background: var(--white);
+            color: var(--secondary-color);
+        }
+
+        .dark-mode .ai-selector-tab.active {
+            background: var(--dark-card);
+            color: var(--secondary-color);
+        }
+
+        .ai-selector-tab.openai.active {
+            border-bottom-color: #10a37f;
+            color: #10a37f;
+        }
+
+        .ai-selector-tab.gemini.active {
+            border-bottom-color: #8e24aa;
+            color: #8e24aa;
+        }
+
+        .ai-status {
+            font-size: 11px;
+            font-weight: normal;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--success-color);
+            color: white;
+        }
+
+        .ai-selector-tab:not(.active) .ai-status {
+            background: #95a5a6;
+        }
+
         /* Chat Modal Styles */
         .chat-modal {
             display: none;
@@ -835,8 +899,8 @@
         .chat-container {
             background: var(--white);
             width: 90%;
-            max-width: 800px;
-            height: 80%;
+            max-width: 900px;
+            height: 80vh;
             border-radius: var(--border-radius);
             display: flex;
             flex-direction: column;
@@ -875,20 +939,39 @@
             cursor: pointer;
         }
 
+        .chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
         .chat-messages {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 15px;
+            display: none;
+        }
+
+        .chat-messages.active {
+            display: flex;
         }
 
         .message {
-            max-width: 80%;
+            max-width: 85%;
             padding: 12px 16px;
             border-radius: 18px;
             line-height: 1.4;
+            position: relative;
+            animation: messageAppear 0.3s ease;
+        }
+
+        @keyframes messageAppear {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .user-message {
@@ -910,34 +993,70 @@
             color: var(--dark-text);
         }
 
-        .chat-input {
-            padding: 20px;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 10px;
+        .message-ai-indicator {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 5px;
+            font-style: italic;
+            text-align: left;
         }
 
-        .dark-mode .chat-input {
+        .message-add-term {
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .message-add-term:hover {
+            background: #219653;
+            transform: scale(1.05);
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .dark-mode .chat-input-area {
             border-top-color: #555;
         }
 
-        .chat-input input {
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
             flex: 1;
-            padding: 12px;
+            padding: 12px 15px;
             border: 2px solid #ddd;
             border-radius: var(--border-radius);
             font-size: 16px;
             background: var(--white);
             color: var(--text-color);
+            transition: border-color 0.3s ease;
         }
 
-        .dark-mode .chat-input input {
+        .dark-mode .chat-input {
             background: #3a3a3a;
             border-color: #555;
             color: var(--dark-text);
         }
 
-        .chat-input button {
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .send-btn {
             padding: 12px 20px;
             background: var(--secondary-color);
             color: var(--white);
@@ -945,15 +1064,115 @@
             border-radius: var(--border-radius);
             cursor: pointer;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
         }
 
-        .chat-input button:hover {
+        .send-btn:hover {
             background: #2980b9;
+            transform: translateY(-1px);
         }
 
-        .chat-input button:disabled {
+        .send-btn:disabled {
             background: #95a5a6;
             cursor: not-allowed;
+            transform: none;
+        }
+
+        .send-icon {
+            font-size: 14px;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background: var(--white);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .action-btn {
+            background: #3a3a3a;
+            border-color: #555;
+            color: var(--dark-text);
+        }
+
+        .action-btn:hover {
+            background: var(--light-bg);
+            transform: translateY(-1px);
+        }
+
+        .dark-mode .action-btn:hover {
+            background: #4a4a4a;
+        }
+
+        .clear-chat {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .add-term-btn {
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #666;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            font-style: italic;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dark-mode .typing-indicator {
+            background: #3a3a3a;
+            color: #aaa;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #666;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .dark-mode .typing-dots span {
+            background: #aaa;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
 
         .ai-chat-btn {
@@ -972,26 +1191,291 @@
             background: #219653;
         }
 
-        .typing-indicator {
-            display: none;
-            align-self: flex-start;
-            background: #f1f1f1;
-            color: #666;
-            padding: 12px 16px;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            font-style: italic;
+        /* تنسيقات المخططات المحسنة */
+        .chart-container {
+            padding: 20px;
         }
 
-        .dark-mode .typing-indicator {
-            background: #3a3a3a;
+        .chart-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--success-color) 0% 0%,
+                var(--warning-color) 0% 0%,
+                var(--accent-color) 0% 0%,
+                #ecf0f1 0% 100%
+            );
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .pie-chart {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .pie-chart-inner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .dark-mode .pie-chart-inner {
+            background: var(--dark-card);
+        }
+
+        .chart-center {
+            text-align: center;
+        }
+
+        .total-terms {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .dark-mode .total-terms {
+            color: var(--dark-text);
+        }
+
+        .center-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .dark-mode .center-label {
             color: #aaa;
         }
 
-        .typing-indicator.active {
-            display: block;
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .legend-item {
+            background: #3a3a3a;
+        }
+
+        .legend-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .legend-color.understood { background: var(--success-color); }
+        .legend-color.partial { background: var(--warning-color); }
+        .legend-color.not-understood { background: var(--accent-color); }
+
+        .legend-text {
+            flex: 1;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .dark-mode .legend-text {
+            color: var(--dark-text);
+        }
+
+        .legend-count {
+            font-size: 14px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .dark-mode .legend-count {
+            color: #aaa;
+        }
+
+        .legend-percent {
+            font-size: 14px;
+            color: var(--secondary-color);
+            font-weight: bold;
+            min-width: 40px;
+            text-align: left;
+        }
+
+        /* تنسيقات مخطط الأعمدة */
+        .bar-chart-container {
+            margin-bottom: 20px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .bar-item {
+            background: #3a3a3a;
+        }
+
+        .bar-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .bar-label {
+            width: 80px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        .dark-mode .bar-label {
+            color: var(--dark-text);
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 30px;
+            background: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .bar-track {
+            background: #2d2d2d;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 1.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 15px;
+            position: relative;
+            min-width: 50px;
+        }
+
+        .bar-fill.najdi-bar { 
+            background: linear-gradient(90deg, var(--success-color), #27ae60);
+        }
+
+        .bar-fill.northern-bar { 
+            background: linear-gradient(90deg, var(--secondary-color), #2980b9);
+        }
+
+        .bar-fill.southern-bar { 
+            background: linear-gradient(90deg, var(--warning-color), #e67e22);
+        }
+
+        .bar-value {
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .bar-stats {
+            width: 80px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .dark-mode .bar-stats {
+            color: #aaa;
+        }
+
+        /* تنسيقات ملخص المخطط */
+        .chart-summary {
+            background: var(--white);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .chart-summary {
+            background: var(--dark-card);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dark-mode .summary-item {
+            border-bottom-color: #444;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .dark-mode .summary-label {
+            color: var(--dark-text);
+        }
+
+        .summary-value {
+            color: var(--secondary-color);
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* رسوم متحركة للمخططات */
+        @keyframes fillProgress {
+            from { width: 0%; }
+            to { width: var(--target-width, 0%); }
+        }
+
+        .bar-fill {
+            animation: fillProgress 1.5s ease-in-out forwards;
+        }
+
+        /* تصميم متجاوب */
         @media (max-width: 768px) {
             .charts-grid {
                 grid-template-columns: 1fr;
@@ -1019,15 +1503,64 @@
             
             .chat-container {
                 width: 95%;
-                height: 90%;
+                height: 95%;
             }
             
             .message {
                 max-width: 90%;
             }
             
-            .form-row {
-                grid-template-columns: 1fr;
+            .ai-selector-tabs {
+                padding: 0 10px;
+            }
+            
+            .ai-selector-tab {
+                padding: 12px 10px;
+                font-size: 14px;
+            }
+            
+            .chat-actions {
+                flex-direction: column;
+            }
+
+            .pie-chart {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .pie-chart-inner {
+                top: 15px;
+                left: 15px;
+                right: 15px;
+                bottom: 15px;
+            }
+            
+            .total-terms {
+                font-size: 20px;
+            }
+            
+            .bar-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            
+            .bar-label {
+                width: auto;
+                text-align: center;
+            }
+            
+            .bar-stats {
+                width: auto;
+                text-align: center;
+            }
+            
+            .legend-item {
+                padding: 6px 10px;
+            }
+            
+            .chart-summary {
+                padding: 12px;
             }
         }
     </style>
@@ -1036,7 +1569,7 @@
     <!-- صفحة تسجيل الدخول -->
     <div class="login-container" id="loginPage">
         <div class="logo">
-            <h1>HUMAIN Chat - تحليل اللهجات</h1>
+            <h1> تحليل الذكاء الاصطناعي للهجات السعودية</h1>
             <p>موقع متخصص لتحليل فهم الذكاء الاصطناعي للهجات السعودية</p>
         </div>
         
@@ -1087,7 +1620,7 @@
         <nav class="navbar">
             <div class="nav-container">
                 <div class="nav-logo">
-                    <h1>HUMAIN Chat - تحليل اللهجات السعودية</h1>
+                    <h1> تحليل الذكاء الاصطناعي للهجات السعودية</h1>
                 </div>
                 <div class="nav-user">
                     <span id="userWelcome">مرحباً، مدير النظام</span>
@@ -1104,7 +1637,7 @@
                 <!-- قسم الترحيب -->
                 <section class="welcome-section">
                     <h1>تحليل فهم الذكاء الاصطناعي للهجات السعودية</h1>
-                    <p>منصة متكاملة لتقييم قدرة HUMAIN Chat على فهم اللهجات النجدية والشمالية والجنوبية</p>
+                    <p>منصة  لتقييم قدرة الذكاء الاصطناعي على فهم اللهجات النجدية والشمالية والجنوبية</p>
                 </section>
 
                 <!-- الإحصائيات السريعة -->
@@ -1125,11 +1658,6 @@
                         <p>سيتم عرض النسبة بعد إدخال البيانات</p>
                     </div>
                 </div>
-
-                <!-- قسم إضافة المصطلحات الجديدة - مخفي -->
-                <section class="add-term-section">
-                    <!-- هذا القسم مخفي الآن -->
-                </section>
 
                 <!-- قسم اللهجات -->
                 <section class="dialects-section">
@@ -1180,8 +1708,8 @@
                                 <tr>
                                     <th>المصطلح</th>
                                     <th>المعنى</th>
-                                    <th>مثال</th>
-                                    <th>استجابة HUMAIN</th>
+                                    <th>الذكاء الاصطناعي المستخدم</th>
+                                    <th>استجابة الذكاء الاصطناعي</th>
                                     <th>النتيجة</th>
                                     <th>الإجراءات</th>
                                 </tr>
@@ -1202,19 +1730,89 @@
                     <h2 class="section-title">مخططات التحليل</h2>
                     <div class="charts-grid">
                         <div class="chart-card">
-                            <h3>توزيع مستوى الفهم</h3>
-                            <div class="chart-placeholder" id="understandingChart">
-                                📊 مخطط دائري - توزيع مستوى الفهم<br>
-                                <br>
-                                سيتم عرض البيانات بعد إدخالها
+                            <h3>📊 توزيع مستوى الفهم</h3>
+                            <div class="chart-container">
+                                <div class="chart-wrapper">
+                                    <div class="pie-chart" id="pieChart">
+                                        <div class="pie-chart-inner">
+                                            <div class="chart-center">
+                                                <div class="total-terms" id="totalTerms">0</div>
+                                                <div class="center-label">إجمالي المصطلحات</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color understood"></span>
+                                        <span class="legend-text">مفهوم</span>
+                                        <span class="legend-count" id="understoodCount">0</span>
+                                        <span class="legend-percent" id="understoodPercent">0%</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color partial"></span>
+                                        <span class="legend-text">فهم جزئي</span>
+                                        <span class="legend-count" id="partialCount">0</span>
+                                        <span class="legend-percent" id="partialPercent">0%</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color not-understood"></span>
+                                        <span class="legend-text">غير مفهوم</span>
+                                        <span class="legend-count" id="notUnderstoodCount">0</span>
+                                        <span class="legend-percent" id="notUnderstoodPercent">0%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        
                         <div class="chart-card">
-                            <h3>مقارنة بين اللهجات</h3>
-                            <div class="chart-placeholder" id="dialectsComparisonChart">
-                                📈 مخطط أعمدة - مقارنة نسبة الفهم<br>
-                                <br>
-                                سيتم عرض البيانات بعد إدخالها
+                            <h3>📈 مقارنة بين اللهجات</h3>
+                            <div class="chart-container">
+                                <div class="bar-chart-container">
+                                    <div class="bar-chart" id="barChart">
+                                        <div class="bar-item">
+                                            <div class="bar-label">النجدية</div>
+                                            <div class="bar-track">
+                                                <div class="bar-fill najdi-bar" style="width: 0%">
+                                                    <span class="bar-value">0%</span>
+                                                </div>
+                                            </div>
+                                            <div class="bar-stats" id="najdiBarStats">0 مصطلح</div>
+                                        </div>
+                                        <div class="bar-item">
+                                            <div class="bar-label">الشمالية</div>
+                                            <div class="bar-track">
+                                                <div class="bar-fill northern-bar" style="width: 0%">
+                                                    <span class="bar-value">0%</span>
+                                                </div>
+                                            </div>
+                                            <div class="bar-stats" id="northernBarStats">0 مصطلح</div>
+                                        </div>
+                                        <div class="bar-item">
+                                            <div class="bar-label">الجنوبية</div>
+                                            <div class="bar-track">
+                                                <div class="bar-fill southern-bar" style="width: 0%">
+                                                    <span class="bar-value">0%</span>
+                                                </div>
+                                            </div>
+                                            <div class="bar-stats" id="southernBarStats">0 مصطلح</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-summary">
+                                    <div class="summary-item">
+                                        <span class="summary-label">أعلى نسبة فهم:</span>
+                                        <span class="summary-value" id="highestUnderstanding">-</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">أقل نسبة فهم:</span>
+                                        <span class="summary-value" id="lowestUnderstanding">-</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">المتوسط العام:</span>
+                                        <span class="summary-value" id="averageUnderstanding">0%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1230,23 +1828,75 @@
                 <h3>محادثة مع الذكاء الاصطناعي - تحليل اللهجات</h3>
                 <button class="close-chat" onclick="closeChat()">×</button>
             </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="message ai-message">
-                    مرحباً! أنا مساعد الذكاء الاصطناعي لتحليل اللهجات السعودية. يمكنني مساعدتك في:
-                    <br>• تحليل مصطلحات اللهجات السعودية
-                    <br>• تفسير معاني الكلمات والعبارات
-                    <br>• تقييم فهم الذكاء الاصطناعي للهجات
-                    <br>• تقديم معلومات عن الاختلافات بين اللهجات
-                    <br><br>ما المصطلح أو العبارة التي تريد تحليلها؟
+            
+            <!-- اختيار نوع الذكاء الاصطناعي -->
+            <div class="ai-selector-tabs">
+                <div class="ai-selector-tab active" data-provider="openai">
+                    <span>🤖 OpenAI GPT</span>
+                    <div class="ai-status">متصل</div>
+                </div>
+                <div class="ai-selector-tab" data-provider="gemini">
+                    <span>🔮 Google Gemini</span>
+                    <div class="ai-status">متصل</div>
                 </div>
             </div>
-            <div class="typing-indicator" id="typingIndicator">الذكاء الاصطناعي يكتب...</div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="اكتب رسالتك هنا..." onkeypress="handleChatInput(event)">
-                <button id="sendBtn" onclick="sendMessage()">إرسال</button>
+
+            <!-- محتوى المحادثة -->
+            <div class="chat-content">
+                <!-- محادثة OpenAI -->
+                <div class="chat-messages active" id="openaiChat">
+                    <div class="message ai-message">
+                        <div>مرحباً! أنا مساعد OpenAI المتخصص في تحليل اللهجات السعودية. يمكنني مساعدتك في:</div>
+                        <br>• تحليل مصطلحات اللهجات السعودية
+                        <br>• تفسير معاني الكلمات والعبارات
+                        <br>• تقييم فهم الذكاء الاصطناعي للهجات
+                        <br>• تقديم معلومات عن الاختلافات بين اللهجات
+                        <br><br>ما المصطلح أو العبارة التي تريد تحليلها؟
+                        <div class="message-ai-indicator">OpenAI GPT</div>
+                    </div>
+                </div>
+
+                <!-- محادثة Gemini -->
+                <div class="chat-messages" id="geminiChat">
+                    <div class="message ai-message">
+                        <div>مرحباً! أنا مساعد Google Gemini المتخصص في تحليل اللهجات السعودية. يمكنني مساعدتك في:</div>
+                        <br>• تحليل مصطلحات اللهجات السعودية بدقة
+                        <br>• تفسير الفروق بين اللهجات النجدية والشمالية والجنوبية
+                        <br>• تحليل سياق استخدام المصطلحات
+                        <br>• تقديم أمثلة عملية للاستخدام
+                        <br><br>ما المصطلح أو العبارة التي تريد تحليلها؟
+                        <div class="message-ai-indicator">Google Gemini</div>
+                    </div>
+                </div>
+
+                <!-- مؤشر الكتابة -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span>الذكاء الاصطناعي يكتب...</span>
+                </div>
             </div>
-        </div>
+
+            <!-- منطقة الإدخال -->
+<div class="chat-input-area">
+    <div class="input-container">
+        <input 
+            type="text" 
+            class="chat-input" 
+            id="chatInput" 
+            placeholder="اكتب رسالتك هنا..." 
+            onkeypress="handleChatInput(event)"
+        >
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <span class="send-text">إرسال</span>
+            <span class="send-icon">↗</span>
+        </button>
     </div>
+</div>
+
 
     <!-- نافذة إضافة المصطلح -->
     <div class="add-term-modal" id="addTermModal">
@@ -1260,6 +1910,7 @@
                 <h4>المصطلح ورد الذكاء الاصطناعي</h4>
                 <p><strong>المصطلح:</strong> <span id="previewTerm">-</span></p>
                 <p><strong>رد الذكاء الاصطناعي:</strong> <span id="previewResponse">-</span></p>
+                <p><strong>نوع الذكاء الاصطناعي:</strong> <span id="previewAIProvider">-</span></p>
             </div>
             
             <form id="addTermForm" class="add-term-form">
@@ -1336,6 +1987,14 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="editAIProvider">الذكاء الاصطناعي المستخدم</label>
+                    <select id="editAIProvider" name="editAIProvider" required>
+                        <option value="openai">OpenAI GPT</option>
+                        <option value="gemini">Google Gemini</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
                     <label for="editResponse">استجابة الذكاء الاصطناعي</label>
                     <textarea id="editResponse" name="editResponse" rows="3" placeholder="أدخل استجابة الذكاء الاصطناعي"></textarea>
                 </div>
@@ -1376,556 +2035,374 @@
             }
         };
 
-        // المتغيرات للتحكم في التعديل
+        // المتغيرات العامة
+        let currentAIProvider = 'openai';
+        let chatMessages = {
+            openai: [],
+            gemini: []
+        };
         let editingTermId = null;
         let currentDialect = 'najdi';
         let currentTerm = '';
         let currentAIResponse = '';
 
-        // ========== دالة الحفظ على السيرفر ==========
-        async function saveTermToServer(termData) {
-          try {
-            const response = await fetch(SERVER_URL, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(termData)
-            });
+        // ========== دوال مساعدة ==========
 
-            const result = await response.json();
-            if (response.ok) {
-              console.log("✅ تم الحفظ في قاعدة D1:", result);
-              return true;
-            } else {
-              console.error("❌ فشل الحفظ:", result);
-              return false;
-            }
-          } catch (err) {
-            console.error("⚠️ خطأ في الاتصال بالسيرفر:", err);
-            return false;
-          }
+        // دالة للحصول على نص الذكاء الاصطناعي المستخدم
+        function getAIProviderText(provider) {
+            const providers = {
+                'openai': 'OpenAI GPT',
+                'gemini': 'Google Gemini',
+                'unknown': 'غير معروف'
+            };
+            return providers[provider] || providers['unknown'];
         }
 
-        // ========== دالة الحذف من السيرفر ==========
-        async function deleteTermFromServer(termId) {
-  try {
-    // حذف محلي فقط بدون سيرفر
-    console.log("🗑️ تم حذف المصطلح محليًا:", termId);
+        function getUnderstandingText(level) {
+            const levels = {
+                'understood': 'مفهوم',
+                'partial': 'فهم جزئي', 
+                'not-understood': 'غير مفهوم'
+            };
+            return levels[level] || level;
+        }
 
-    // مثلاً: إزالة العنصر من الواجهة
-    const termElement = document.getElementById(`term-${termId}`);
-    if (termElement) termElement.remove();
+        // ========== دوال إدارة المحادثة ==========
 
-    // تقدر تحدث المصفوفة المحلية اللي فيها البيانات لو عندك وحدة
-    if (window.termsData) {
-      window.termsData = window.termsData.filter(t => t.id !== termId);
+        function switchAIProvider(provider) {
+            currentAIProvider = provider;
+            
+            // تحديث التبويبات النشطة
+            document.querySelectorAll('.ai-selector-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.ai-selector-tab[data-provider="${provider}"]`).classList.add('active');
+            
+            // تحديث محتوى المحادثة النشط
+            document.querySelectorAll('.chat-messages').forEach(chat => {
+                chat.classList.remove('active');
+            });
+            document.getElementById(`${provider}Chat`).classList.add('active');
+            
+            // تحديث واجهة المستخدم
+            updateChatUI();
+        }
+
+        function updateChatUI() {
+            // إعادة تعيين المؤشر
+            document.getElementById('typingIndicator').classList.remove('active');
+            document.getElementById('sendBtn').disabled = false;
+            
+            // تركيز على حقل الإدخال
+            document.getElementById('chatInput').focus();
+        }
+
+        function addMessageToChat(message, sender, provider) {
+            const chatContainer = document.getElementById(`${provider}Chat`);
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}-message`;
+            
+            if (sender === 'ai') {
+                const messageContent = document.createElement('div');
+                messageContent.textContent = message;
+                messageElement.appendChild(messageContent);
+                
+                // إضافة مؤشر نوع الذكاء الاصطناعي
+                const aiProvider = document.createElement('div');
+                aiProvider.className = 'message-ai-indicator';
+                aiProvider.textContent = provider === 'openai' ? 'OpenAI GPT' : 'Google Gemini';
+                messageElement.appendChild(aiProvider);
+                
+                // إضافة زر إضافة المصطلح إذا كانت رسالة AI
+                if (message.trim().length > 0) {
+                    const addButton = document.createElement('button');
+                    addButton.className = 'message-add-term';
+                    addButton.textContent = 'إضافة هذا المصطلح';
+                    addButton.onclick = function() {
+                        addCurrentMessageToTerms(provider);
+                    };
+                    messageElement.appendChild(addButton);
+                }
+            } else {
+                messageElement.textContent = message;
+            }
+            
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // حفظ الرسالة في الذاكرة
+            chatMessages[provider].push({
+                sender: sender,
+                message: message,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // إضافة رسالة المستخدم
+            addMessageToChat(message, 'user', currentAIProvider);
+            input.value = '';
+            
+            // إظهار مؤشر الكتابة
+            document.getElementById('typingIndicator').classList.add('active');
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                const response = await sendToAI(message, currentAIProvider);
+                
+                document.getElementById('typingIndicator').classList.remove('active');
+                document.getElementById('sendBtn').disabled = false;
+                
+                // إضافة رسالة الذكاء الاصطناعي
+                addMessageToChat(response.reply, 'ai', currentAIProvider);
+                
+            } catch (error) {
+                document.getElementById('typingIndicator').classList.remove('active');
+                document.getElementById('sendBtn').disabled = false;
+                
+                addMessageToChat('عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.', 'ai', currentAIProvider);
+                console.error('Error communicating with AI:', error);
+            }
+        }
+
+        function handleChatInput(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function clearCurrentChat() {
+            if (confirm(`هل تريد مسح محادثة ${currentAIProvider === 'openai' ? 'OpenAI' : 'Gemini'}؟`)) {
+                const chatContainer = document.getElementById(`${currentAIProvider}Chat`);
+                
+                // حفظ الرسالة الترحيبية الأولى فقط
+                const welcomeMessage = chatContainer.querySelector('.message');
+                chatContainer.innerHTML = '';
+                if (welcomeMessage) {
+                    chatContainer.appendChild(welcomeMessage);
+                }
+                
+                // مسح الذاكرة
+                chatMessages[currentAIProvider] = [];
+                
+                showNotification('تم مسح المحادثة بنجاح', 'success');
+            }
+        }
+
+        function addCurrentMessageToTerms(provider = null) {
+            const targetProvider = provider || currentAIProvider;
+            const messages = chatMessages[targetProvider];
+            
+            if (messages.length === 0) {
+                showNotification('لا توجد رسائل لإضافتها', 'error');
+                return;
+            }
+            
+            // البحث عن آخر رسالة مستخدم
+            const lastUserMessage = [...messages].reverse().find(msg => msg.sender === 'user');
+            
+            if (!lastUserMessage) {
+                showNotification('لم يتم العثور على مصطلح لإضافته', 'error');
+                return;
+            }
+            
+            // فتح نافذة إضافة المصطلح
+            currentTerm = lastUserMessage.message;
+            currentAIProvider = targetProvider;
+            
+            // البحث عن رد AI المقابل
+            const userIndex = messages.findIndex(msg => msg.message === lastUserMessage.message);
+            const aiResponse = messages[userIndex + 1] ? messages[userIndex + 1].message : '';
+            
+            openAddTermModal(lastUserMessage.message, aiResponse, targetProvider);
+        }
+
+        // ========== دوال الذكاء الاصطناعي ==========
+
+        async function sendToAI(prompt, provider) {
+    try {
+        console.log(`Sending message to ${provider}:`, prompt);
+
+        // ✨ نضيف توجيه (prompt instruction) لتقصير الرد
+        const concisePrompt = `
+        أجب باختصار لا يتجاوز سطرين فقط.
+        حلل الكلمة أو العبارة التالية باختصار ووضوح بدون شرح طويل:
+        ${prompt}
+        `;
+
+        const response = await fetch(`${SERVER_URL}/chat`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: concisePrompt,
+                provider: provider
+            })
+        });
+
+        // قراءة النتيجة
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error communicating with AI:", error);
+        throw error;
     }
-
-    return true;
-  } catch (err) {
-    console.error("⚠️ فشل في حذف المصطلح محليًا:", err);
-    return false;
-  }
 }
 
 
+        // ========== دوال إدارة النوافذ ==========
 
-        // ========== دالة التحميل من السيرفر ==========
-        async function loadFromServer() {
-            try {
-                updateSyncStatus('syncing', '🔄 جاري تحميل البيانات من السيرفر...');
-                
-                const response = await fetch(SERVER_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log("✅ تم تحميل البيانات من السيرفر:", data);
-
-                // دمج البيانات مع البيانات المحلية
-                if (data && data.length > 0) {
-                    // إعادة تهيئة البيانات
-                    dialectsData = {
-                        najdi: { name: "اللهجة النجدية", terms: [] },
-                        northern: { name: "اللهجة الشمالية", terms: [] },
-                        southern: { name: "اللهجة الجنوبية", terms: [] }
-                    };
-
-                    // معالجة البيانات من السيرفر
-                    data.forEach(item => {
-                        if (item.dialect && dialectsData[item.dialect]) {
-                            dialectsData[item.dialect].terms.push({
-                                id: item.id || Date.now().toString(),
-                                term: item.term,
-                                meaning: item.meaning,
-                                dialect: item.dialect,
-                                category: item.category || "مثال",
-                                response: item.response || item.aiResponse,
-                                understanding: item.understanding,
-                                timestamp: item.timestamp || new Date().toISOString(),
-                                fromServer: true // علامة أن البيانات من السيرفر
-                            });
-                        }
-                    });
-
-                    // حفظ البيانات المحلية
-                    saveDialectsData();
-
-                    // تحديث الإحصائيات والعرض
-                    updateStatistics();
-                    showDialect(currentDialect);
-
-                    console.log(`📊 تم دمج ${data.length} عنصر من السيرفر مع البيانات المحلية.`);
-                    updateSyncStatus('success', `✅ تم تحميل ${data.length} مصطلح من قاعدة البيانات`);
-                } else {
-                    updateSyncStatus('success', '✅ لا توجد بيانات جديدة في قاعدة البيانات');
-                }
-
-            } catch (err) {
-                console.error("❌ خطأ أثناء استرجاع البيانات:", err);
-                updateSyncStatus('error', '❌ فشل في تحميل البيانات من السيرفر');
-                
-                // تحميل البيانات المحلية كبديل
-                loadLocalData();
-            }
+        function openChat() {
+            document.getElementById('chatModal').classList.add('active');
+            document.getElementById('chatInput').focus();
         }
 
-        // ========== دالة تحديث حالة المزامنة ==========
-        function updateSyncStatus(status, message) {
-            const syncStatus = document.getElementById('syncStatus');
-            syncStatus.innerHTML = `<span>${message}</span>`;
-            syncStatus.className = 'sync-status';
-            
-            if (status === 'syncing') {
-                syncStatus.classList.add('syncing');
-            } else if (status === 'error') {
-                syncStatus.classList.add('error');
-            }
-            
-            // إخفاء المؤشر بعد 3 ثواني
-            if (status !== 'syncing') {
-                setTimeout(() => {
-                    syncStatus.style.display = 'none';
-                }, 3000);
-                
-                setTimeout(() => {
-                    syncStatus.style.display = 'flex';
-                }, 100);
-            }
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('active');
         }
 
-        // ========== التحقق من حالة الدخول عند تحميل الصفحة ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            if (localStorage.getItem('loggedIn') === 'true') {
-                showDashboard();
-            } else {
-                showLogin();
-            }
-            
-            // تحميل البيانات المحلية أولاً
-            loadLocalData();
-            
-            // إضافة معالج الحدث للنموذج الجديد
-            document.getElementById('addTermForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                addTermFromChat(e);
-            });
-
-            // إضافة معالج الحدث لنموذج التعديل
-            document.getElementById('editTermForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveEditedTerm(e);
-            });
-
-            // بدء مزامنة السيرفر
-            startServerSync();
-
-            // تهيئة وضع الدارك مود
-            initDarkMode();
-        });
-
-        // ========== وضع الدارك مود ==========
-
-        function initDarkMode() {
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                document.getElementById('themeToggle').textContent = '☀️ وضع النهار';
-            }
-
-            document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
-        }
-
-        function toggleDarkMode() {
-            const body = document.body;
-            const themeToggle = document.getElementById('themeToggle');
-            
-            body.classList.toggle('dark-mode');
-            
-            if (body.classList.contains('dark-mode')) {
-                themeToggle.textContent = '☀️ وضع النهار';
-                localStorage.setItem('darkMode', 'true');
-            } else {
-                themeToggle.textContent = '🌙 وضع الليل';
-                localStorage.setItem('darkMode', 'false');
-            }
-        }
-
-        // ========== مزامنة السيرفر ==========
-
-        function startServerSync() {
-            // تحميل البيانات من السيرفر عند البدء
-            setTimeout(() => {
-                loadFromServer();
-            }, 1000);
-            
-            // المزامنة التلقائية كل 30 ثانية
-            setInterval(() => {
-                loadFromServer();
-            }, 30000);
-        }
-
-        // ========== وظائف إدارة المصطلحات ==========
-
-        // وظيفة إضافة مصطلح جديد من المحادثة
-        async function addTermFromChat(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(document.getElementById('addTermForm'));
-            
-            const newTerm = {
-                id: Date.now().toString(),
-                term: currentTerm,
-                meaning: formData.get('termMeaning'),
-                dialect: formData.get('termDialect'),
-                category: "تمت الإضافة عبر المحادثة",
-                response: currentAIResponse,
-                understanding: formData.get('termUnderstanding'),
-                timestamp: new Date().toISOString()
-            };
-            
-            // إضافة المصطلح إلى البيانات المحلية
-            dialectsData[newTerm.dialect].terms.push(newTerm);
-            
-            // حفظ البيانات محلياً
-            saveDialectsData();
-            
-            // حفظ المصطلح على السيرفر
-            const serverSaveSuccess = await saveTermToServer(newTerm);
-            
-            if (serverSaveSuccess) {
-                showNotification('تم إضافة المصطلح بنجاح وحفظه على السيرفر', 'success');
-            } else {
-                showNotification('تم إضافة المصطلح محلياً ولكن فشل الحفظ على السيرفر', 'warning');
-            }
-            
-            // تحديث الواجهة
-            updateStatistics();
-            showDialect(currentDialect);
-            
-            // إغلاق النافذة
-            closeAddTermModal();
-        }
-
-        // وظيفة حذف مصطلح - الإصدار المحسن
-        async function deleteTerm(termId, dialect) {
-            if (!confirm('هل أنت متأكد من حذف هذا المصطلح؟')) return;
-            
-            try {
-                // تحويل termId إلى string للمقارنة الصحيحة
-                const termIdStr = String(termId);
-                
-                // البحث عن المصطلح
-                const termIndex = dialectsData[dialect].terms.findIndex(term => String(term.id) === termIdStr);
-                
-                if (termIndex === -1) {
-                    showNotification('لم يتم العثور على المصطلح', 'error');
-                    return;
-                }
-
-                const termToDelete = dialectsData[dialect].terms[termIndex];
-                
-                // 1. أولاً: حذف المصطلح من السيرفر
-                const serverDeleteSuccess = await deleteTermFromServer(termToDelete.id);
-                
-                if (!serverDeleteSuccess) {
-                    showNotification('فشل في حذف المصطلح من السيرفر', 'error');
-                    return;
-                }
-                
-                // 2. ثانياً: حذف المصطلح من البيانات المحلية
-                dialectsData[dialect].terms.splice(termIndex, 1);
-                
-                // حفظ البيانات محلياً
-                saveDialectsData();
-                
-                // تحديث الواجهة
-                updateStatistics();
-                showDialect(currentDialect);
-                
-                // إظهار إشعار النجاح
-                showNotification('تم حذف المصطلح بنجاح من السيرفر والمخزن المحلي', 'success');
-                
-            } catch (error) {
-                console.error('خطأ أثناء حذف المصطلح:', error);
-                showNotification('حدث خطأ غير متوقع أثناء الحذف', 'error');
-            }
-        }
-
-        // وظيفة فتح نافذة تعديل المصطلح
-        function openEditTermModal(termId, dialect) {
-            // تحويل termId إلى string للمقارنة الصحيحة
-            const termIdStr = String(termId);
-            
-            // البحث عن المصطلح
-            const term = dialectsData[dialect].terms.find(t => String(t.id) === termIdStr);
-            
-            if (term) {
-                editingTermId = termId;
-                
-                // تعبئة النموذج ببيانات المصطلح
-                document.getElementById('editTerm').value = term.term;
-                document.getElementById('editMeaning').value = term.meaning;
-                document.getElementById('editDialect').value = term.dialect;
-                document.getElementById('editUnderstanding').value = term.understanding;
-                document.getElementById('editResponse').value = term.response || '';
-                
-                // فتح النافذة
-                document.getElementById('editTermModal').classList.add('active');
-            } else {
-                showNotification('لم يتم العثور على المصطلح', 'error');
-            }
-        }
-
-        // وظيفة حفظ التعديلات على المصطلح
-        async function saveEditedTerm(e) {
-            e.preventDefault();
-            
-            if (!editingTermId) return;
-            
-            const formData = new FormData(document.getElementById('editTermForm'));
-            
-            // تحويل editingTermId إلى string للمقارنة الصحيحة
-            const termIdStr = String(editingTermId);
-            
-            // البحث عن المصطلح في البيانات المحلية
-            const dialect = formData.get('editDialect');
-            const termIndex = dialectsData[dialect].terms.findIndex(term => String(term.id) === termIdStr);
-            
-            if (termIndex !== -1) {
-                // تحديث بيانات المصطلح
-                dialectsData[dialect].terms[termIndex] = {
-                    ...dialectsData[dialect].terms[termIndex],
-                    term: formData.get('editTerm'),
-                    meaning: formData.get('editMeaning'),
-                    dialect: dialect,
-                    understanding: formData.get('editUnderstanding'),
-                    response: formData.get('editResponse'),
-                    timestamp: new Date().toISOString()
-                };
-                
-                // حفظ البيانات محلياً
-                saveDialectsData();
-                
-                // حفظ التعديلات على السيرفر
-                const serverSaveSuccess = await saveTermToServer(dialectsData[dialect].terms[termIndex]);
-                
-                if (serverSaveSuccess) {
-                    showNotification('تم تعديل المصطلح بنجاح وحفظه على السيرفر', 'success');
-                } else {
-                    showNotification('تم تعديل المصطلح محلياً ولكن فشل الحفظ على السيرفر', 'warning');
-                }
-                
-                // تحديث الواجهة
-                updateStatistics();
-                showDialect(currentDialect);
-                
-                // إغلاق النافذة
-                closeEditTermModal();
-            } else {
-                showNotification('لم يتم العثور على المصطلح', 'error');
-            }
-        }
-
-        // وظيفة إغلاق نافذة تعديل المصطلح
-        function closeEditTermModal() {
-            document.getElementById('editTermModal').classList.remove('active');
-            editingTermId = null;
-            document.getElementById('editTermForm').reset();
-        }
-
-        // وظيفة حفظ بيانات اللهجات محلياً
-        function saveDialectsData() {
-            localStorage.setItem('dialectsData', JSON.stringify(dialectsData));
-        }
-
-        // تحميل البيانات المحلية
-        function loadLocalData() {
-            const savedData = localStorage.getItem('dialectsData');
-            if (savedData) {
-                try {
-                    const localData = JSON.parse(savedData);
-                    dialectsData = localData;
-                    updateStatistics();
-                    showDialect(currentDialect);
-                } catch (e) {
-                    console.error('خطأ في تحميل البيانات المحلية:', e);
-                }
-            }
-        }
-
-        // وظيفة فتح نافذة إضافة المصطلح
-        function openAddTermModal(term, aiResponse) {
+        function openAddTermModal(term, aiResponse, aiProvider) {
             currentTerm = term;
             currentAIResponse = aiResponse;
+            currentAIProvider = aiProvider;
             
             document.getElementById('previewTerm').textContent = term;
             document.getElementById('previewResponse').textContent = aiResponse;
+            document.getElementById('previewAIProvider').textContent = getAIProviderText(aiProvider);
             document.getElementById('addTermModal').classList.add('active');
             
             // إعادة تعيين النموذج
             document.getElementById('addTermForm').reset();
         }
         
-        // وظيفة إغلاق نافذة إضافة المصطلح
         function closeAddTermModal() {
             document.getElementById('addTermModal').classList.remove('active');
             currentTerm = '';
             currentAIResponse = '';
         }
 
-        // وظيفة تحديث الإحصائيات
-        function updateStatistics() {
-            let totalTerms = 0;
-            let totalUnderstood = 0;
-            let totalPartial = 0;
-            let totalNotUnderstood = 0;
-            
-            Object.keys(dialectsData).forEach(dialectKey => {
-                const dialect = dialectsData[dialectKey];
-                const termsCount = dialect.terms.length;
-                
-                const understoodCount = dialect.terms.filter(term => term.understanding === 'understood').length;
-                const partialCount = dialect.terms.filter(term => term.understanding === 'partial').length;
-                const notUnderstoodCount = dialect.terms.filter(term => term.understanding === 'not-understood').length;
-                
-                const understandingPercentage = termsCount > 0 ? 
-                    Math.round(((understoodCount + (partialCount * 0.5)) / termsCount) * 100) : 0;
-                
-                const statsElement = document.getElementById(`${dialectKey}Stats`);
-                const progressElement = document.getElementById(`${dialectKey}Progress`);
-                
-                if (statsElement) {
-                    statsElement.innerHTML = `
-                        <span>${termsCount} مصطلح</span>
-                        <span>${understandingPercentage}% فهم</span>
-                    `;
-                }
-                
-                if (progressElement) {
-                    progressElement.style.width = `${understandingPercentage}%`;
-                }
-                
-                totalTerms += termsCount;
-                totalUnderstood += understoodCount;
-                totalPartial += partialCount;
-                totalNotUnderstood += notUnderstoodCount;
-            });
-            
-            const totalUnderstandingPercentage = totalTerms > 0 ? 
-                Math.round(((totalUnderstood + (totalPartial * 0.5)) / totalTerms) * 100) : 0;
-            
-            const errorRate = totalTerms > 0 ? 
-                Math.round((totalNotUnderstood / totalTerms) * 100) : 0;
-            
-            const statsGrid = document.getElementById('statsGrid');
-            statsGrid.innerHTML = `
-                <div class="stat-card">
-                    <h3>نسبة الفهم الكلي</h3>
-                    <div class="stat-number">${totalUnderstandingPercentage}%</div>
-                    <p>من إجمالي ${totalTerms} مصطلح</p>
-                </div>
-                <div class="stat-card">
-                    <h3>المصطلحات المفهومة</h3>
-                    <div class="stat-number">${totalUnderstood}</div>
-                    <p>${totalPartial} مفهومة جزئياً</p>
-                </div>
-                <div class="stat-card">
-                    <h3>نسبة الخطأ</h3>
-                    <div class="stat-number">${errorRate}%</div>
-                    <p>${totalNotUnderstood} مصطلح غير مفهوم</p>
-                </div>
-            `;
-            
-            updateCharts();
+        function closeEditTermModal() {
+            document.getElementById('editTermModal').classList.remove('active');
+            editingTermId = null;
         }
 
-        // وظيفة تحديث المخططات
-        function updateCharts() {
-            let understoodCount = 0;
-            let partialCount = 0;
-            let notUnderstoodCount = 0;
+        // ========== دوال إدارة المصطلحات ==========
+
+        async function saveTermToServer(termData) {
+            try {
+                console.log("💾 محاولة حفظ المصطلح على السيرفر:", termData);
+                
+                // تنظيف البيانات قبل الإرسال
+                const cleanTermData = {
+                    term: termData.term || '',
+                    meaning: termData.meaning || '',
+                    dialect: termData.dialect || 'najdi',
+                    understanding: termData.understanding || 'understood',
+                    response: termData.response || '',
+                    ai_provider: termData.ai_provider || 'openai'
+                };
+                
+                // التحقق من أن جميع الحقول المطلوبة موجودة
+                if (!cleanTermData.term || !cleanTermData.meaning || !cleanTermData.dialect || !cleanTermData.understanding) {
+                    console.warn("⚠️ بيانات غير مكتملة للحفظ على السيرفر");
+                    return false;
+                }
+                
+                const response = await fetch(`${SERVER_URL}/terms`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(cleanTermData)
+                });
+
+                console.log("📤 حالة الاستجابة:", response.status, response.statusText);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.warn("⚠️ فشل الحفظ في السيرفر:", errorText);
+                    
+                    // محاولة تحليل الخطأ إذا كان JSON
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        console.warn("تفاصيل الخطأ:", errorData);
+                    } catch (e) {
+                        console.warn("الخطأ غير معروف:", errorText);
+                    }
+                    
+                    return false;
+                }
+
+                const result = await response.json();
+                console.log("✅ تم الحفظ في السيرفر:", result);
+                return true;
+                
+            } catch (err) {
+                console.warn("⚠️ خطأ في الاتصال بالسيرفر:", err);
+                return false;
+            }
+        }
+
+        async function addTermFromChat(e) {
+            e.preventDefault();
             
-            Object.keys(dialectsData).forEach(dialectKey => {
-                const dialect = dialectsData[dialectKey];
-                understoodCount += dialect.terms.filter(term => term.understanding === 'understood').length;
-                partialCount += dialect.terms.filter(term => term.understanding === 'partial').length;
-                notUnderstoodCount += dialect.terms.filter(term => term.understanding === 'not-understood').length;
-            });
+            const formData = new FormData(document.getElementById('addTermForm'));
+            const meaning = formData.get('termMeaning');
+            const dialect = formData.get('termDialect');
+            const understanding = formData.get('termUnderstanding');
             
-            const totalTerms = understoodCount + partialCount + notUnderstoodCount;
-            
-            if (totalTerms > 0) {
-                const understandingChart = document.getElementById('understandingChart');
-                understandingChart.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 10px; height: 100%; justify-content: center;">
-                        <div style="display: flex; align-items: center;">
-                            <div style="width: 15px; height: 15px; background: #27ae60; margin-left: 10px;"></div>
-                            <span>مفهوم: ${understoodCount} (${Math.round((understoodCount/totalTerms)*100)}%)</span>
-                        </div>
-                        <div style="display: flex; align-items: center;">
-                            <div style="width: 15px; height: 15px; background: #f39c12; margin-left: 10px;"></div>
-                            <span>فهم جزئي: ${partialCount} (${Math.round((partialCount/totalTerms)*100)}%)</span>
-                        </div>
-                        <div style="display: flex; align-items: center;">
-                            <div style="width: 15px; height: 15px; background: #e74c3c; margin-left: 10px;"></div>
-                            <span>غير مفهوم: ${notUnderstoodCount} (${Math.round((notUnderstoodCount/totalTerms)*100)}%)</span>
-                        </div>
-                    </div>
-                `;
+            // التحقق من البيانات المطلوبة
+            if (!meaning || !dialect || !understanding) {
+                showNotification('جميع الحقول مطلوبة!', 'error');
+                return;
             }
             
-            const dialectsComparisonChart = document.getElementById('dialectsComparisonChart');
-            let comparisonHTML = '<div style="display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center;">';
+            const newTerm = {
+                id: Date.now().toString(),
+                term: currentTerm || 'مصطلح بدون نص',
+                meaning: meaning,
+                dialect: dialect,
+                category: "تمت الإضافة عبر المحادثة",
+                response: currentAIResponse || 'لا توجد استجابة',
+                understanding: understanding,
+                ai_provider: currentAIProvider || 'openai',
+                timestamp: new Date().toISOString()
+            };
             
-            Object.keys(dialectsData).forEach(dialectKey => {
-                const dialect = dialectsData[dialectKey];
-                const termsCount = dialect.terms.length;
-                
-                if (termsCount > 0) {
-                    const understoodCount = dialect.terms.filter(term => term.understanding === 'understood').length;
-                    const partialCount = dialect.terms.filter(term => term.understanding === 'partial').length;
-                    const understandingPercentage = Math.round(((understoodCount + (partialCount * 0.5)) / termsCount) * 100);
-                    
-                    comparisonHTML += `
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span>${dialect.name}</span>
-                                <span>${understandingPercentage}%</span>
-                            </div>
-                            <div style="width: 100%; height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden;">
-                                <div style="width: ${understandingPercentage}%; height: 100%; background: #3498db; border-radius: 10px;"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
+            console.log("🆕 مصطلح جديد:", newTerm);
             
-            comparisonHTML += '</div>';
-            dialectsComparisonChart.innerHTML = comparisonHTML;
+            // إضافة المصطلح إلى البيانات المحلية أولاً
+            dialectsData[newTerm.dialect].terms.push(newTerm);
+            saveDialectsData();
+            
+            // تحديث الواجهة فوراً
+            updateStatistics();
+            updateCharts(); // ✅ تحديث المخططات
+            showDialect(currentDialect);
+            
+            // محاولة الحفظ على السيرفر (لا نعتمد على نجاحه)
+            const serverSaveSuccess = await saveTermToServer(newTerm);
+            
+            if (serverSaveSuccess) {
+                showNotification('تم إضافة المصطلح بنجاح', 'success');
+            } else {
+                showNotification('تم إضافة المصطلح محلياً (السيرفر غير متوفر)', 'info');
+            }
+            
+            closeAddTermModal();
         }
 
-        // وظيفة showDialect
         function showDialect(dialectKey) {
             currentDialect = dialectKey;
             
@@ -1955,7 +2432,11 @@
                     row.innerHTML = `
                         <td><strong>${term.term}</strong></td>
                         <td>${term.meaning}</td>
-                        <td>${term.category}</td>
+                        <td>
+                            <span class="ai-provider-badge ${term.ai_provider || 'openai'}">
+                                ${getAIProviderText(term.ai_provider)}
+                            </span>
+                        </td>
                         <td>${term.response}</td>
                         <td><span class="understanding-badge ${term.understanding}">
                             ${getUnderstandingText(term.understanding)}
@@ -1972,14 +2453,7 @@
             }
         }
 
-        function getUnderstandingText(level) {
-            const levels = {
-                'understood': 'مفهوم',
-                'partial': 'فهم جزئي', 
-                'not-understood': 'غير مفهوم'
-            };
-            return levels[level] || level;
-        }
+        // ========== دوال النظام الأساسية ==========
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -2051,6 +2525,7 @@
             document.getElementById('userWelcome').textContent = `مرحباً، ${username}`;
             
             showDialect('najdi');
+            updateCharts(); // ✅ تحديث المخططات عند فتح Dashboard
         }
 
         function showLogin() {
@@ -2082,109 +2557,485 @@
             }, 3000);
         }
 
-        // وظائف المحادثة مع الذكاء الاصطناعي
-        function openChat() {
-            document.getElementById('chatModal').classList.add('active');
-            document.getElementById('chatInput').focus();
+        function saveDialectsData() {
+            localStorage.setItem('dialectsData', JSON.stringify(dialectsData));
         }
 
-        function closeChat() {
-            document.getElementById('chatModal').classList.remove('active');
-        }
-
-        function handleChatInput(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
+        function loadLocalData() {
+            const savedData = localStorage.getItem('dialectsData');
+            if (savedData) {
+                try {
+                    const localData = JSON.parse(savedData);
+                    dialectsData = localData;
+                    updateStatistics();
+                    updateCharts(); // ✅ تحديث المخططات عند تحميل البيانات
+                    showDialect(currentDialect);
+                } catch (e) {
+                    console.error('خطأ في تحميل البيانات المحلية:', e);
+                }
             }
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
+        function updateStatistics() {
+            let totalTerms = 0;
+            let totalUnderstood = 0;
+            let totalPartial = 0;
+            let totalNotUnderstood = 0;
             
-            if (!message) return;
+            Object.keys(dialectsData).forEach(dialectKey => {
+                const dialect = dialectsData[dialectKey];
+                const termsCount = dialect.terms.length;
+                
+                const understoodCount = dialect.terms.filter(term => term.understanding === 'understood').length;
+                const partialCount = dialect.terms.filter(term => term.understanding === 'partial').length;
+                const notUnderstoodCount = dialect.terms.filter(term => term.understanding === 'not-understood').length;
+                
+                const understandingPercentage = termsCount > 0 ? 
+                    Math.round(((understoodCount + (partialCount * 0.5)) / termsCount) * 100) : 0;
+                
+                const statsElement = document.getElementById(`${dialectKey}Stats`);
+                const progressElement = document.getElementById(`${dialectKey}Progress`);
+                
+                if (statsElement) {
+                    statsElement.innerHTML = `
+                        <span>${termsCount} مصطلح</span>
+                        <span>${understandingPercentage}% فهم</span>
+                    `;
+                }
+                
+                if (progressElement) {
+                    progressElement.style.width = `${understandingPercentage}%`;
+                }
+                
+                totalTerms += termsCount;
+                totalUnderstood += understoodCount;
+                totalPartial += partialCount;
+                totalNotUnderstood += notUnderstoodCount;
+            });
             
-            addMessageToChat(message, 'user');
-            input.value = '';
+            const totalUnderstandingPercentage = totalTerms > 0 ? 
+                Math.round(((totalUnderstood + (totalPartial * 0.5)) / totalTerms) * 100) : 0;
             
-            document.getElementById('typingIndicator').classList.add('active');
-            document.getElementById('sendBtn').disabled = true;
+            const errorRate = totalTerms > 0 ? 
+                Math.round((totalNotUnderstood / totalTerms) * 100) : 0;
             
-            try {
-                // استخدام الذكاء الاصطناعي الحقيقي
-                const response = await sendToAI(message);
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <h3>نسبة الفهم الكلي</h3>
+                    <div class="stat-number">${totalUnderstandingPercentage}%</div>
+                    <p>من إجمالي ${totalTerms} مصطلح</p>
+                </div>
+                <div class="stat-card">
+                    <h3>المصطلحات المفهومة</h3>
+                    <div class="stat-number">${totalUnderstood}</div>
+                    <p>${totalPartial} مفهومة جزئياً</p>
+                </div>
+                <div class="stat-card">
+                    <h3>نسبة الخطأ</h3>
+                    <div class="stat-number">${errorRate}%</div>
+                    <p>${totalNotUnderstood} مصطلح غير مفهوم</p>
+                </div>
+            `;
+        }
+
+        // ========== دوال المخططات الإحصائية ==========
+
+        function updateCharts() {
+            updatePieChart();
+            updateBarChart();
+            updateChartSummary();
+        }
+
+        function updatePieChart() {
+            let understood = 0;
+            let partial = 0;
+            let notUnderstood = 0;
+            
+            // حساب الإحصائيات من جميع اللهجات
+            Object.keys(dialectsData).forEach(dialectKey => {
+                const dialect = dialectsData[dialectKey];
+                understood += dialect.terms.filter(term => term.understanding === 'understood').length;
+                partial += dialect.terms.filter(term => term.understanding === 'partial').length;
+                notUnderstood += dialect.terms.filter(term => term.understanding === 'not-understood').length;
+            });
+            
+            const total = understood + partial + notUnderstood;
+            
+            // تحديث الأرقام
+            document.getElementById('totalTerms').textContent = total;
+            document.getElementById('understoodCount').textContent = understood;
+            document.getElementById('partialCount').textContent = partial;
+            document.getElementById('notUnderstoodCount').textContent = notUnderstood;
+            
+            // حساب النسب المئوية
+            const understoodPercent = total > 0 ? Math.round((understood / total) * 100) : 0;
+            const partialPercent = total > 0 ? Math.round((partial / total) * 100) : 0;
+            const notUnderstoodPercent = total > 0 ? Math.round((notUnderstood / total) * 100) : 0;
+            
+            document.getElementById('understoodPercent').textContent = understoodPercent + '%';
+            document.getElementById('partialPercent').textContent = partialPercent + '%';
+            document.getElementById('notUnderstoodPercent').textContent = notUnderstoodPercent + '%';
+            
+            // تحديث المخطط الدائري
+            const pieChart = document.querySelector('.pie-chart');
+            if (total > 0) {
+                pieChart.style.background = `conic-gradient(
+                    var(--success-color) 0% ${understoodPercent}%,
+                    var(--warning-color) 0% ${understoodPercent + partialPercent}%,
+                    var(--accent-color) 0% ${understoodPercent + partialPercent + notUnderstoodPercent}%,
+                    #ecf0f1 0% 100%
+                )`;
+            } else {
+                pieChart.style.background = '#ecf0f1';
+            }
+        }
+
+        function updateBarChart() {
+            const dialects = ['najdi', 'northern', 'southern'];
+            
+            dialects.forEach(dialectKey => {
+                const dialect = dialectsData[dialectKey];
+                const termsCount = dialect.terms.length;
                 
-                document.getElementById('typingIndicator').classList.remove('active');
-                document.getElementById('sendBtn').disabled = false;
+                let understandingPercentage = 0;
+                if (termsCount > 0) {
+                    const understoodCount = dialect.terms.filter(term => term.understanding === 'understood').length;
+                    const partialCount = dialect.terms.filter(term => term.understanding === 'partial').length;
+                    const notUnderstoodCount = dialect.terms.filter(term => term.understanding === 'not-understood').length;
+                    
+                    understandingPercentage = Math.round(((understoodCount + (partialCount * 0.5)) / termsCount) * 100);
+                }
                 
-                // إضافة رسالة الذكاء الاصطناعي مع زر إضافة المصطلح
-                const chatMessages = document.getElementById('chatMessages');
-                const messageElement = document.createElement('div');
-                messageElement.className = 'message ai-message';
+                // تحديث الأعمدة
+                const barElement = document.querySelector(`.${dialectKey}-bar`);
+                const barValue = barElement.querySelector('.bar-value');
+                const statsElement = document.getElementById(`${dialectKey}BarStats`);
                 
-                // إضافة نص الرد
-                const responseText = document.createElement('div');
-                responseText.textContent = response;
-                messageElement.appendChild(responseText);
+                barElement.style.width = `${understandingPercentage}%`;
+                barValue.textContent = `${understandingPercentage}%`;
+                statsElement.textContent = `${termsCount} مصطلح`;
                 
-                // إضافة زر إضافة المصطلح
-                const addButton = document.createElement('button');
-                addButton.className = 'add-term-btn';
-                addButton.textContent = 'إضافة هذا المصطلح إلى قاعدة البيانات';
-                addButton.onclick = function() {
-                    openAddTermModal(message, response);
+                // إضافة تأثير متحرك
+                barElement.style.animation = 'none';
+                setTimeout(() => {
+                    barElement.style.animation = 'fillProgress 1.5s ease-in-out forwards';
+                }, 100);
+            });
+        }
+
+        function updateChartSummary() {
+            const dialects = ['najdi', 'northern', 'southern'];
+            let percentages = [];
+            let totalPercentage = 0;
+            let count = 0;
+            
+            dialects.forEach(dialectKey => {
+                const dialect = dialectsData[dialectKey];
+                const termsCount = dialect.terms.length;
+                
+                if (termsCount > 0) {
+                    const understoodCount = dialect.terms.filter(term => term.understanding === 'understood').length;
+                    const partialCount = dialect.terms.filter(term => term.understanding === 'partial').length;
+                    const understandingPercentage = Math.round(((understoodCount + (partialCount * 0.5)) / termsCount) * 100);
+                    
+                    percentages.push({
+                        dialect: dialectKey,
+                        percentage: understandingPercentage,
+                        name: dialect.name
+                    });
+                    
+                    totalPercentage += understandingPercentage;
+                    count++;
+                }
+            });
+            
+            // تحديث الملخص
+            if (percentages.length > 0) {
+                const highest = percentages.reduce((max, item) => item.percentage > max.percentage ? item : max);
+                const lowest = percentages.reduce((min, item) => item.percentage < min.percentage ? item : min);
+                const average = Math.round(totalPercentage / count);
+                
+                document.getElementById('highestUnderstanding').textContent = `${highest.name} (${highest.percentage}%)`;
+                document.getElementById('lowestUnderstanding').textContent = `${lowest.name} (${lowest.percentage}%)`;
+                document.getElementById('averageUnderstanding').textContent = `${average}%`;
+            } else {
+                document.getElementById('highestUnderstanding').textContent = '-';
+                document.getElementById('lowestUnderstanding').textContent = '-';
+                document.getElementById('averageUnderstanding').textContent = '0%';
+            }
+        }
+
+        // ========== دوال التعديل والحذف ==========
+
+        function openEditTermModal(termId, dialect) {
+            const termIdStr = String(termId);
+            const term = dialectsData[dialect].terms.find(t => String(t.id) === termIdStr);
+            
+            if (term) {
+                editingTermId = termId;
+                document.getElementById('editTerm').value = term.term;
+                document.getElementById('editMeaning').value = term.meaning;
+                document.getElementById('editDialect').value = term.dialect;
+                document.getElementById('editUnderstanding').value = term.understanding;
+                document.getElementById('editAIProvider').value = term.ai_provider || 'openai';
+                document.getElementById('editResponse').value = term.response || '';
+                document.getElementById('editTermModal').classList.add('active');
+            }
+        }
+
+        async function deleteTerm(termId, dialect) {
+    if (!confirm('هل أنت متأكد من حذف هذا المصطلح؟')) return;
+
+    const termIdStr = String(termId);
+
+    try {
+        // 🔗 إرسال طلب الحذف إلى السيرفر
+        const response = await fetch(`${SERVER_URL}/terms/${termIdStr}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // ✅ حذف من البيانات المحلية بعد نجاح الحذف من السيرفر
+            const termIndex = dialectsData[dialect].terms.findIndex(term => String(term.id) === termIdStr);
+            if (termIndex !== -1) {
+                dialectsData[dialect].terms.splice(termIndex, 1);
+            }
+
+            saveDialectsData();
+            updateStatistics();
+            updateCharts();
+            showDialect(currentDialect);
+            showNotification('✅ تم حذف المصطلح بنجاح', 'success');
+        } else {
+            console.warn('⚠️ فشل الحذف من قاعدة البيانات:', result.message);
+            showNotification('⚠️ لم يتم العثور على المصطلح في قاعدة البيانات', 'warning');
+        }
+    } catch (error) {
+        console.error('❌ خطأ أثناء الحذف:', error);
+        showNotification('❌ حدث خطأ أثناء الحذف من السيرفر', 'error');
+    }
+}
+
+
+        async function saveEditedTerm(e) {
+            e.preventDefault();
+            
+            if (!editingTermId) return;
+            
+            const formData = new FormData(document.getElementById('editTermForm'));
+            const termIdStr = String(editingTermId);
+            const dialect = formData.get('editDialect');
+            const termIndex = dialectsData[dialect].terms.findIndex(term => String(term.id) === termIdStr);
+            
+            if (termIndex !== -1) {
+                dialectsData[dialect].terms[termIndex] = {
+                    ...dialectsData[dialect].terms[termIndex],
+                    term: formData.get('editTerm'),
+                    meaning: formData.get('editMeaning'),
+                    dialect: dialect,
+                    understanding: formData.get('editUnderstanding'),
+                    ai_provider: formData.get('editAIProvider'),
+                    response: formData.get('editResponse')
                 };
                 
-                messageElement.appendChild(document.createElement('br'));
-                messageElement.appendChild(addButton);
-                chatMessages.appendChild(messageElement);
-                
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            } catch (error) {
-                document.getElementById('typingIndicator').classList.remove('active');
-                document.getElementById('sendBtn').disabled = false;
-                
-                addMessageToChat('عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.', 'ai');
-                console.error('Error communicating with AI:', error);
+                saveDialectsData();
+                updateStatistics();
+                updateCharts(); // ✅ تحديث المخططات بعد التعديل
+                showDialect(currentDialect);
+                closeEditTermModal();
+                showNotification('تم تعديل المصطلح بنجاح', 'success');
             }
         }
 
-        function addMessageToChat(message, sender) {
-            const chatMessages = document.getElementById('chatMessages');
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${sender}-message`;
-            messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
-            
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        // ========== دوال المزامنة مع السيرفر ==========
 
-        // دالة الاتصال بالذكاء الاصطناعي الحقيقي
-        async function sendToAI(prompt) {
+        async function loadFromServer() {
             try {
-                const response = await fetch("https://twilight-haze-d33b.abdullahalshehrih5-22a.workers.dev/chat", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ message: prompt })
-                });
-
+                updateSyncStatus('syncing', '🔄 جاري تحميل البيانات من السيرفر...');
+                
+                console.log("📥 جاري تحميل البيانات من:", `${SERVER_URL}/terms`);
+                
+                const response = await fetch(`${SERVER_URL}/terms`);
+                
                 if (!response.ok) {
+                    // إذا كان الخطأ 500، استخدم البيانات المحلية فقط
+                    if (response.status === 500) {
+                        console.warn("⚠️ السيرفر يعاني من مشكلة، استخدام البيانات المحلية");
+                        updateSyncStatus('success', '✅ استخدام البيانات المحلية (السيرفر غير متوفر)');
+                        loadLocalData();
+                        return;
+                    }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-
+                
                 const data = await response.json();
-                return data.reply;
+                console.log("✅ تم تحميل البيانات من السيرفر:", data);
+
+                if (data && data.terms && data.terms.length > 0) {
+                    // دمج البيانات مع البيانات المحلية
+                    dialectsData = {
+                        najdi: { name: "اللهجة النجدية", terms: [] },
+                        northern: { name: "اللهجة الشمالية", terms: [] },
+                        southern: { name: "اللهجة الجنوبية", terms: [] }
+                    };
+
+                    data.terms.forEach(item => {
+                  if (!item.dialect) return;
+
+  // تحويل الاسم العربي إلى المفتاح المناسب
+  let dialectKey = item.dialect.trim();
+
+  if (dialectKey === "لهجة نجدية") dialectKey = "najdi";
+  else if (dialectKey === "لهجة شمالية") dialectKey = "northern";
+  else if (dialectKey === "لهجة جنوبية") dialectKey = "southern";
+
+  if (dialectsData[dialectKey]) {
+    dialectsData[dialectKey].terms.push({
+      id: item.id || Date.now().toString(),
+      term: item.term,
+      meaning: item.meaning,
+      dialect: item.dialect,
+      category: item.category || "مثال",
+      response: item.response,
+      understanding: item.understanding,
+      ai_provider: item.ai_provider || "openai",
+      timestamp: item.timestamp || new Date().toISOString()
+    });
+  }
+});
+function updateTermsUI() {
+    console.log("تحديث واجهة المستخدم بعد تحميل البيانات من السيرفر");
+}
+
+                    saveDialectsData();
+                    updateStatistics();
+                    updateCharts(); // ✅ تحديث المخططات بعد تحميل البيانات
+                    showDialect(currentDialect);
+
+                    console.log(`📊 تم دمج ${data.terms.length} عنصر من السيرفر`);
+                    updateSyncStatus('success', `✅ تم تحميل ${data.terms.length} مصطلح`);
+                } else {
+                    updateSyncStatus('success', '✅ لا توجد بيانات جديدة في السيرفر');
+                    loadLocalData();
+                }
 
             } catch (err) {
-                console.error("Error communicating with server:", err);
-                return "عذراً، حدث خطأ في الاتصال بالخادم. يرجى التأكد أن السيرفر يعمل.";
+                console.error("❌ خطأ أثناء استرجاع البيانات:", err);
+                updateSyncStatus('error', '❌ استخدام البيانات المحلية (خطأ في السيرفر)');
+                loadLocalData();
             }
         }
 
-        // عند فتح الصفحة - تحميل البيانات من السيرفر
-        window.addEventListener("load", loadFromServer);
+        function updateSyncStatus(status, message) {
+            const syncStatus = document.getElementById('syncStatus');
+            syncStatus.innerHTML = `<span>${message}</span>`;
+            syncStatus.className = 'sync-status';
+            
+            if (status === 'syncing') {
+                syncStatus.classList.add('syncing');
+            } else if (status === 'error') {
+                syncStatus.classList.add('error');
+            }
+            
+            // إخفاء المؤشر بعد 3 ثواني
+            if (status !== 'syncing') {
+                setTimeout(() => {
+                    syncStatus.style.display = 'none';
+                }, 3000);
+                
+                // إعادة إظهاره عند التحديث التالي
+                setTimeout(() => {
+                    syncStatus.style.display = 'flex';
+                }, 100);
+            }
+        }
+
+        // ========== التهيئة ==========
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('loggedIn') === 'true') {
+                showDashboard();
+            } else {
+                showLogin();
+            }
+            
+            // تحميل البيانات المحلية أولاً
+            loadLocalData();
+            
+            // إضافة معالج الحدث للنماذج
+            document.getElementById('addTermForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addTermFromChat(e);
+            });
+
+            document.getElementById('editTermForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveEditedTerm(e);
+            });
+
+            // إضافة مستمعي الأحداث لأزرار اختيار الذكاء الاصطناعي
+            document.querySelectorAll('.ai-selector-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const provider = this.getAttribute('data-provider');
+                    switchAIProvider(provider);
+                });
+            });
+            
+            // تهيئة الرسائل الترحيبية في الذاكرة
+            chatMessages.openai.push({
+                sender: 'ai',
+                message: document.querySelector('#openaiChat .ai-message div').textContent,
+                timestamp: new Date().toISOString()
+            });
+            
+            chatMessages.gemini.push({
+                sender: 'ai', 
+                message: document.querySelector('#geminiChat .ai-message div').textContent,
+                timestamp: new Date().toISOString()
+            });
+
+            // بدء مزامنة السيرفر
+            startServerSync();
+
+            // تهيئة وضع الدارك مود
+            initDarkMode();
+        });
+
+        function initDarkMode() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').textContent = '☀️ وضع النهار';
+            }
+
+            document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
+        }
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                themeToggle.textContent = '☀️ وضع النهار';
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                themeToggle.textContent = '🌙 وضع الليل';
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+
+        function startServerSync() {
+            // تحميل البيانات من السيرفر عند البدء
+            setTimeout(() => {
+                loadFromServer();
+            }, 1000);
+        }
     </script>
 </body>
 </html>
