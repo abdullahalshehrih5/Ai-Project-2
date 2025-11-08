@@ -1,7 +1,6 @@
 name = "twilight-haze-d33b"
 main = "worker.js"
 compatibility_date = "2025-11-01"
-compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
@@ -9,5 +8,5 @@ database_name = "dialects-database"
 database_id = "3bf61bb9-0d72-4041-a97a-c4179b28d7b8"
 
 [vars]
-OPENAI_API_KEY = "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
-"
+OPENAI_API_KEY = "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"
+GEMINI_API_KEY = "AIzaSyDEvRSGjqFTwxsSisLQgVApznel2eRYw0g"
